@@ -1,81 +1,66 @@
 # Algo-Trading System with ML & Automation
 
-This project is a Python-based mini algo-trading prototype that fetches stock data, implements a trading strategy, backtests it, and logs the results to Google Sheets. It also includes a simple machine learning model to predict stock price movements.
+## Overview
+This project is a Python-based mini algo-trading prototype that:
+- Fetches daily stock data for 3 NIFTY 50 stocks using Yahoo Finance (`yfinance`)
+- Implements a sample trading strategy (RSI < 30 + 20/50-DMA crossover)
+- Logs trades and analytics to Google Sheets
+- Uses a machine learning model to predict next-day movement
+- Sends Telegram alerts for trades and errors
 
 ## Features
+- **Data Ingestion:** Free daily data for Indian stocks (NSE) via yfinance
+- **Strategy:** Buy when RSI < 30 and 20-DMA crosses above 50-DMA; sell on reverse cross
+- **Backtesting:** Last 6 months, with 5 years of data for indicator accuracy
+- **ML Model:** Random Forest using RSI, MACD, EMAs, Bollinger Bands, returns, and volume
+- **Google Sheets:** Logs trade signals, P&L, win ratio, and summary in separate tabs
+- **Telegram Alerts:** Notifies on trades and errors
+- **Modular Code:** Well-documented, easy to extend
 
-- **Data Ingestion**: Fetches daily stock data from Alpha Vantage.
-- **Trading Strategy**: Implements a trading strategy based on RSI and Moving Average Crossover.
-- **Backtesting**: Backtests the strategy on the last 6 months of historical data.
-- **Google Sheets Integration**: Logs trade signals, P&L, and performance summaries to Google Sheets.
-- **ML Model**: A simple Decision Tree model to predict next-day price movements.
-- **Automation**: A single script to run the entire pipeline.
+## Setup
 
-## Project Structure
-```
-algo_trading/
-├── main.py
-├── data/
-│   └── data_fetcher.py
-├── strategy/
-│   ├── indicators.py
-│   └── backtester.py
-├── gsheets/
-│   └── sheets_client.py
-├── ml/
-│   └── model.py
-├── utils/
-│   └── logger.py
-├── config.py
-├── requirements.txt
-└── README.md
-```
-
-## Getting Started
-
-### 1. Prerequisites
-
-- Python 3.7+
-- An Alpha Vantage API key (get one for free [here](https://www.alphavantage.co/support/#api-key))
-- A Google Cloud Platform project with the Google Sheets API enabled and service account credentials (see [gspread docs](https://gspread.readthedocs.io/en/latest/oauth2.html) for instructions).
-
-### 2. Installation
-
-Clone the repository and install the required packages:
-
+### 1. Clone the Repo or Unzip
 ```bash
-git clone <repository-url>
-cd <repository-directory>
-pip install -r requirements.txt
+git clone https://github.com/diwesh10/trading.git
+cd trading
 ```
 
-### 3. Configuration
+### 2. Install Requirements
+```bash
+python -m pip install -r requirements.txt
+```
 
-1.  **API Key**: Open `config.py` and replace `"YOUR_API_KEY"` with your actual Alpha Vantage API key.
-2.  **Tickers**: You can change the list of stock tickers in `config.py`.
-3.  **Google Sheets (Optional)**:
-    *   Follow the `gspread` documentation to set up OAuth2 and get your credentials JSON file.
-    *   Update `GSHEETS_CREDENTIALS_PATH` in `config.py` with the path to your credentials file.
-    *   Create a new Google Sheet and share it with the `client_email` found in your credentials JSON file.
-    *   Update `GSHEETS_SPREADSHEET_NAME` in `config.py` with the name of your spreadsheet.
+### 3. Configure `.env`
+Create a `.env` file in the project root:
+```
+GSHEETS_CREDENTIALS_PATH=your-credentials.json
+GSHEETS_SPREADSHEET_NAME=AlgoTradingLog
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
 
-### 4. Running the Application
+### 4. Set Tickers in `config.py`
+```python
+TICKERS = ["RELIANCE.NS", "TCS.NS", "INFY.NS"]
+```
 
-To run the entire trading algorithm, execute the `main.py` script:
+### 5. Google Sheets Setup
+- Create a Google Sheet named `AlgoTradingLog`
+- Share it with your service account email (from credentials.json) as Editor
 
+### 6. Run the Algo
 ```bash
 python main.py
 ```
 
-The script will:
-- Fetch the latest stock data for the configured tickers.
-- Run the backtesting simulation for the past 6 months.
-- Train the ML model and output its accuracy.
-- Log the trade log and a summary of the performance to your Google Sheet (if configured).
+## How the Strategy Works
+- **Buy:** RSI < 30 and 20-DMA > 50-DMA
+- **Sell:** 20-DMA < 50-DMA
+- **Backtest:** Only last 6 months are used for results
 
-## Bonus: Telegram Integration
+## Output
+- **Console:** Shows trade log, P&L, win ratio, ML accuracy
+- **Google Sheets:** Tabs for Trade Log and Summary P&L
+- **Telegram:** Alerts for trades and errors
 
-The bonus task of integrating Telegram alerts is not implemented in this version. To add this feature, you would need to:
-1.  Create a Telegram bot and get its API token.
-2.  Use the `python-telegram-bot` library.
-3.  Add a function to send messages (e.g., in `utils`) and call it from `main.py` to send alerts for new trades or errors.
+
